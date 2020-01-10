@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at Etherscan.io on 2020-01-10
+*/
+
 pragma solidity ^0.5.0;
 
 /**
@@ -332,6 +336,10 @@ contract MinterRole is Context {
 
     Roles.Role private _minters;
 
+    constructor () internal {
+        _addMinter(_msgSender());
+    }
+
     modifier onlyMinter() {
         require(isMinter(_msgSender()), "MinterRole: caller does not have the Minter role");
         _;
@@ -368,6 +376,10 @@ contract PauserRole is Context {
 
     Roles.Role private _pausers;
 
+    constructor () internal {
+        _addPauser(_msgSender());
+    }
+
     modifier onlyPauser() {
         require(isPauser(_msgSender()), "PauserRole: caller does not have the Pauser role");
         _;
@@ -403,6 +415,10 @@ contract BurnerRole is Context {
     event BurnerRemoved(address indexed account);
 
     Roles.Role private _burners;
+    
+    constructor () internal {
+        _addBurner(_msgSender());
+    }
 
     modifier onlyBurner() {
         require(isBurner(_msgSender()), "BurnerRole: caller does not have the Burner role");
@@ -451,6 +467,55 @@ interface IERC165 {
      * This function call must use less than 30 000 gas.
      */
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts may inherit from this and call {_registerInterface} to declare
+ * their support of an interface.
+ */
+contract ERC165 is IERC165 {
+    /*
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
+     */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+
+    /**
+     * @dev Mapping of interface ids to whether or not it's supported.
+     */
+    mapping(bytes4 => bool) private _supportedInterfaces;
+
+    constructor () internal {
+        // Derived contracts need only register support for their own interfaces,
+        // we register support for ERC165 itself here
+        _registerInterface(_INTERFACE_ID_ERC165);
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     *
+     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
+        return _supportedInterfaces[interfaceId];
+    }
+
+    /**
+     * @dev Registers the contract as an implementer of the interface defined by
+     * `interfaceId`. Support of the actual ERC165 interface is automatic and
+     * registering its interface id is not required.
+     *
+     * See {IERC165-supportsInterface}.
+     *
+     * Requirements:
+     *
+     * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
+     */
+    function _registerInterface(bytes4 interfaceId) internal {
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        _supportedInterfaces[interfaceId] = true;
+    }
 }
 
 /**
@@ -525,55 +590,6 @@ contract IERC721Receiver {
      */
     function onERC721Received(address operator, address from, uint256 tokenId, bytes memory data)
     public returns (bytes4);
-}
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts may inherit from this and call {_registerInterface} to declare
- * their support of an interface.
- */
-contract ERC165 is IERC165 {
-    /*
-     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
-     */
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-
-    /**
-     * @dev Mapping of interface ids to whether or not it's supported.
-     */
-    mapping(bytes4 => bool) private _supportedInterfaces;
-
-    constructor () internal {
-        // Derived contracts need only register support for their own interfaces,
-        // we register support for ERC165 itself here
-        _registerInterface(_INTERFACE_ID_ERC165);
-    }
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     *
-     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool) {
-        return _supportedInterfaces[interfaceId];
-    }
-
-    /**
-     * @dev Registers the contract as an implementer of the interface defined by
-     * `interfaceId`. Support of the actual ERC165 interface is automatic and
-     * registering its interface id is not required.
-     *
-     * See {IERC165-supportsInterface}.
-     *
-     * Requirements:
-     *
-     * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
-     */
-    function _registerInterface(bytes4 interfaceId) internal {
-        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
-        _supportedInterfaces[interfaceId] = true;
-    }
 }
 
 /**
@@ -1137,7 +1153,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     string private _symbol;
 
     // Base URI
-    string private _baseURI;
+    string private baseURI;
 
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
@@ -1196,7 +1212,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
             return "";
         } else {
             // abi.encodePacked is being used to concatenate strings
-            return string(abi.encodePacked(_baseURI, _tokenURI));
+            return string(abi.encodePacked(baseURI, _tokenURI));
         }
     }
 
@@ -1205,8 +1221,8 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     * automatically added as a preffix in {tokenURI} to each token's URI, when
     * they are non-empty.
     */
-    function baseURI() external view returns (string memory) {
-        return _baseURI;
+    function getBaseURI() external view returns (string memory) {
+        return baseURI;
     }
 
     /**
@@ -1229,8 +1245,8 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      *
      * _Available since v2.5.0._
      */
-    function _setBaseURI(string memory baseURI) internal {
-        _baseURI = baseURI;
+    function _setBaseURI(string memory _baseURI) internal {
+        baseURI = _baseURI;
     }
 
     /**
@@ -1332,11 +1348,10 @@ contract Pausable is Context, PauserRole {
     bool private _paused;
 
     /**
-     * @dev Initializes the contract in unpaused state. Assigns the Pauser role
-     * to the deployer.
+     * @dev Initializes the contract in paused state. 
      */
     constructor () internal {
-        _paused = false;
+        _paused = true;
     }
 
     /**
@@ -1421,13 +1436,10 @@ contract ERC721Burnable is Context, BurnerRole, ERC721 {
     }
 }
 
-contract NFTregistry is ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
+contract AIT is ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
     using SafeMath for uint256;
     
-    constructor (string memory name, string memory symbol, address operator) ERC721Metadata(name, symbol) public {
-        mintWithTokenURI(operator, 0, "Operator");
-        _addMinter(operator);
-        _addPauser(operator);
-        _addBurner(operator);
+    constructor(string memory name, string memory symbol) ERC721Metadata(name, symbol) public {
+       mintWithTokenURI(msg.sender, 0, "Operator");
     }
 }
