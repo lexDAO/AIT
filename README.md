@@ -1,6 +1,6 @@
 # AIT
 
-The lexDAO Token Accreditation Program (TAP) streamlines attorney certifications for investor accreditation with private online questionnaires and a public whitelist registry for Reg. D token sales integrated with [non-fungible tokens (ERC-721)](https://docs.openzeppelin.com/contracts/2.x/api/token/erc721). 
+The lexDAO Token Accreditation Program (TAP) streamlines attorney certifications for accreditation status with private online questionnaires integrated with a public whitelist registry for Reg. D token sales represented by non-transferrable, [non-fungible tokens (ERC-721)](https://docs.openzeppelin.com/contracts/2.x/api/token/erc721). 
 
 [v1 deployed on Ethereum Mainnet](https://etherscan.io/address/0xa44181716d7910d3cecd02a5cdd5920f0884980b)
 
