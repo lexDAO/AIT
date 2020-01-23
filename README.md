@@ -6,7 +6,7 @@ The lexDAO Token Accreditation Program (TAP) streamlines attorney certifications
 
 # Legal Base
 
-The "Accredited investor" verification rules of Reg. D 506(c) allow attorneys to certify accreditation and maintain investor privacy whil also allowing issuers to comply with their obligation to take *reasonable steps* to verify the status of purchasers of their securities. 
+The "Accredited investor" verification rules of Reg. D 506(c) allow attorneys to certify accreditation and maintain investor privacy while also allowing issuers to comply with their obligation to take *reasonable steps* to verify the status of purchasers of their securities. 
 
 # Code Base
 
