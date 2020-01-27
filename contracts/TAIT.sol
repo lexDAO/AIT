@@ -1493,7 +1493,7 @@ contract ERC721Burnable is Context, BurnerRole, ERC721 {
     }
 }
 
-contract AIT is OperatorRole, ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
+contract TAIT is OperatorRole, ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
     using SafeMath for uint256;
     
     constructor(string memory name, string memory symbol) ERC721Metadata(name, symbol) public {
