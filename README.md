@@ -11,4 +11,4 @@ The "Accredited investor" verification rules of Reg. D 506(c) allow attorneys to
 # Code Base
 
 lexDAO on [Aragon](https://mainnet.aragon.org/#/lexdaolawyer/0x90eead5f30c413f2c559eecdc0dec937b91ff7be/) controls on-chain attorney registrations for this certification role.  
-Currently, authorized lexDAO attorneys can use this [OpenLaw form (https://lib.openlaw.io/web/default/template/accredited%20investor%20token%20certification) to cerfify your accreditation status and allow you to legibly participate in regulated token sales that might otherwise be deemed securities under U.S. federal law.
+Currently, authorized lexDAO attorneys can use this [OpenLaw form] (https://lib.openlaw.io/web/default/template/accredited%20investor%20token%20certification) to cerfify your accreditation status and allow you to legibly participate in regulated token sales that might otherwise be deemed securities under U.S. federal law.
