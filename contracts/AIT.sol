@@ -1,7 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2020-01-10
-*/
-
 pragma solidity ^0.5.0;
 
 /**
@@ -445,6 +441,46 @@ contract BurnerRole is Context {
     function _removeBurner(address account) internal {
         _burners.remove(account);
         emit BurnerRemoved(account);
+    }
+}
+
+contract OperatorRole is Context {
+    using Roles for Roles.Role;
+
+    event OperatorAdded(address indexed account);
+    event OperatorRemoved(address indexed account);
+
+    Roles.Role private _operators;
+    
+    constructor () internal {
+        _addOperator(_msgSender());
+    }
+
+    modifier onlyOperator() {
+        require(isOperator(_msgSender()), "OperatorRole: caller does not have the Operator role");
+        _;
+    }
+
+    function isOperator(address account) public view returns (bool) {
+        return _operators.has(account);
+    }
+
+    function addOperator(address account) public onlyOperator {
+        _addOperator(account);
+    }
+    
+    function renounceOperator() public {
+        _removeOperator(_msgSender());
+    }
+    
+    function _addOperator(address account) internal {
+        _operators.add(account);
+        emit OperatorAdded(account);
+    }
+
+    function _removeOperator(address account) internal {
+        _operators.remove(account);
+        emit OperatorRemoved(account);
     }
 }
 
@@ -914,9 +950,28 @@ contract ERC721 is Context, ERC165, IERC721 {
         if (!to.isContract()) {
             return true;
         }
-
-        bytes4 retval = IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data);
-        return (retval == _ERC721_RECEIVED);
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory returndata) = to.call(abi.encodeWithSelector(
+            IERC721Receiver(to).onERC721Received.selector,
+            _msgSender(),
+            from,
+            tokenId,
+            _data
+        ));
+        if (!success) {
+            if (returndata.length > 0) {
+                // solhint-disable-next-line no-inline-assembly
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert("ERC721: transfer to non ERC721Receiver implementer");
+            }
+        } else {
+            bytes4 retval = abi.decode(returndata, (bytes4));
+            return (retval == _ERC721_RECEIVED);
+        }
     }
 
     /**
@@ -1153,7 +1208,7 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
     string private _symbol;
 
     // Base URI
-    string private baseURI;
+    string private _baseURI;
 
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
@@ -1212,17 +1267,8 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
             return "";
         } else {
             // abi.encodePacked is being used to concatenate strings
-            return string(abi.encodePacked(baseURI, _tokenURI));
+            return string(abi.encodePacked(_baseURI, _tokenURI));
         }
-    }
-
-    /**
-    * @dev Returns the base URI set via {_setBaseURI}. This will be
-    * automatically added as a preffix in {tokenURI} to each token's URI, when
-    * they are non-empty.
-    */
-    function getBaseURI() external view returns (string memory) {
-        return baseURI;
     }
 
     /**
@@ -1245,8 +1291,19 @@ contract ERC721Metadata is Context, ERC165, ERC721, IERC721Metadata {
      *
      * _Available since v2.5.0._
      */
-    function _setBaseURI(string memory _baseURI) internal {
-        baseURI = _baseURI;
+    function _setBaseURI(string memory baseURI) internal {
+        _baseURI = baseURI;
+    }
+
+    /**
+    * @dev Returns the base URI set via {_setBaseURI}. This will be
+    * automatically added as a preffix in {tokenURI} to each token's URI, when
+    * they are non-empty.
+    *
+    * _Available since v2.5.0._
+    */
+    function baseURI() external view returns (string memory) {
+        return _baseURI;
     }
 
     /**
@@ -1436,10 +1493,25 @@ contract ERC721Burnable is Context, BurnerRole, ERC721 {
     }
 }
 
-contract AIT is ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
+contract AIT is OperatorRole, ERC721Enumerable, ERC721MetadataMintable, ERC721Pausable, ERC721Burnable {
     using SafeMath for uint256;
     
     constructor(string memory name, string memory symbol) ERC721Metadata(name, symbol) public {
        mintWithTokenURI(msg.sender, 0, "Operator");
+    }
+    
+    function removeMinter(address _removedMinter) public onlyOperator returns (bool) {
+        _removeMinter(_removedMinter);
+        return true;
+    }
+    
+    function removePauser(address _removedPauser) public onlyOperator returns (bool) {
+        _removePauser(_removedPauser);
+        return true;
+    }
+
+    function removeBurner(address _removedBurner) public onlyOperator returns (bool) {
+        _removeBurner(_removedBurner);
+        return true;
     }
 }
